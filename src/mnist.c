@@ -13,7 +13,7 @@ uint32_t read_uint32(FILE *f) {
     return __builtin_bswap32(result);
 }
 
-uint8_t *load_mnist_images(const char *filename, int *num_images, int *image_size) {
+uint8_t *load_mnist_images(const char *filename, uint32_t *num_images, uint32_t *image_size) {
     FILE *f = fopen(filename, "rb");
     if (!f) {
         perror("Failed to open images file");
@@ -44,7 +44,7 @@ uint8_t *load_mnist_images(const char *filename, int *num_images, int *image_siz
     return images;
 }
 
-uint8_t *load_mnist_labels(const char *filename, int *num_labels) {
+uint8_t *load_mnist_labels(const char *filename, uint32_t *num_labels) {
     FILE *f = fopen(filename, "rb");
     if (!f) {
         perror("Failed to open labels file");

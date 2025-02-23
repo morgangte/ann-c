@@ -15,14 +15,15 @@ all: $(TRAIN_EXEC) $(TEST_EXEC)
 
 # ************************** Executable ****************************
 
-$(TRAIN_EXEC): $(SRC_DIR)/train.o $(SRC_DIR)/mnist.o $(SRC_DIR)/neuralnetwork.o
+$(TRAIN_EXEC): $(SRC_DIR)/train.o $(SRC_DIR)/mnist.o $(SRC_DIR)/neuralnetwork.o $(SRC_DIR)/layer.o
 	$(CC) $^ -o $@ $(LIB)
 
-$(TEST_EXEC): $(SRC_DIR)/test.o $(SRC_DIR)/mnist.o $(SRC_DIR)/neuralnetwork.o
+$(TEST_EXEC): $(SRC_DIR)/test.o $(SRC_DIR)/mnist.o $(SRC_DIR)/neuralnetwork.o $(SRC_DIR)/layer.o
 	$(CC) $^ -o $@ $(LIB)
 
 # ************************* Object files ***************************
 
+$(SRC_DIR)/layer.o: $(SRC_DIR)/layer.c $(INC_DIR)/layer.h
 $(SRC_DIR)/neuralnetwork.o: $(SRC_DIR)/neuralnetwork.c $(INC_DIR)/neuralnetwork.h
 $(SRC_DIR)/mnist.o: $(SRC_DIR)/mnist.c $(INC_DIR)/mnist.h
 $(SRC_DIR)/train.o: $(SRC_DIR)/train.c $(INC_DIR)/neuralnetwork.h $(INC_DIR)/mnist.h
