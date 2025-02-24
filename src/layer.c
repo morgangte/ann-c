@@ -36,9 +36,6 @@ void linearlayer_initialize(LinearLayer *layer) {
 }
 
 void linearlayer_forward(LinearLayer *layer, double *input, double *output) {
-    if (!layer) {
-        printf("NULL layer\n");
-    }
     double sum = 0.0;
     for (uint32_t i = 0; i < layer->output_size; i++) {
         sum = layer->biases[i];

@@ -27,7 +27,7 @@ void print_results(NeuralNetwork *network, uint8_t *images, uint8_t *labels, dou
 int main(void) {
     NeuralNetwork network = neuralnetwork_create();
     TrainingContext context;
-    neuralnetwork_load(&network, &context, "model/my_nn_model0");
+    neuralnetwork_load(&network, &context, "model/my_nn_model");
 
     uint32_t number_of_images, image_size, number_of_labels;
     uint8_t *images = load_mnist_images("data/train-images-idx3-ubyte", &number_of_images, &image_size);
@@ -43,24 +43,6 @@ int main(void) {
 
     double performance = neuralnetwork_benchmark(&network, images, labels, number_of_images);
     print_results(&network, images, labels, performance, &context);
-
-    /****/
-    neuralnetwork_load(&network, &context, "model/my_nn_model1");
-    performance = neuralnetwork_benchmark(&network, images, labels, number_of_images);
-    print_results(&network, images, labels, performance, &context);
-
-    neuralnetwork_load(&network, &context, "model/my_nn_model2");
-    performance = neuralnetwork_benchmark(&network, images, labels, number_of_images);
-    print_results(&network, images, labels, performance, &context);
-
-    neuralnetwork_load(&network, &context, "model/my_nn_model3");
-    performance = neuralnetwork_benchmark(&network, images, labels, number_of_images);
-    print_results(&network, images, labels, performance, &context);
-
-    neuralnetwork_load(&network, &context, "model/my_nn_model4");
-    performance = neuralnetwork_benchmark(&network, images, labels, number_of_images);
-    print_results(&network, images, labels, performance, &context);
-    /****/
 
     neuralnetwork_destroy(&network);
     free(images);

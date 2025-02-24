@@ -17,35 +17,13 @@ int main(void) {
 
     NeuralNetwork network = neuralnetwork_create();
     TrainingContext context = {
-        .learning_rate = 0.01,
+        .learning_rate = 0.05,
         .number_of_epochs = 10,
     };
     neuralnetwork_initialize(&network);
     neuralnetwork_train(&network, images, labels, number_of_images, &context);
 
-    neuralnetwork_save(&network, &context, "model/my_nn_model0");
-
-    /****/
-    context.learning_rate += 0.01;
-    neuralnetwork_initialize(&network);
-    neuralnetwork_train(&network, images, labels, number_of_images, &context);
-    neuralnetwork_save(&network, &context, "model/my_nn_model1");
-
-    context.learning_rate += 0.01;
-    neuralnetwork_initialize(&network);
-    neuralnetwork_train(&network, images, labels, number_of_images, &context);
-    neuralnetwork_save(&network, &context, "model/my_nn_model2");
-
-    context.learning_rate += 0.01;
-    neuralnetwork_initialize(&network);
-    neuralnetwork_train(&network, images, labels, number_of_images, &context);
-    neuralnetwork_save(&network, &context, "model/my_nn_model3");
-
-    context.learning_rate += 0.01;
-    neuralnetwork_initialize(&network);
-    neuralnetwork_train(&network, images, labels, number_of_images, &context);
-    neuralnetwork_save(&network, &context, "model/my_nn_model4");
-    /****/
+    neuralnetwork_save(&network, &context, "model/my_nn_model");
 
     neuralnetwork_destroy(&network);
     free(images);

@@ -42,13 +42,13 @@ void neuralnetwork_backward(NeuralNetwork *network, double *input, uint8_t label
 
     for (int i = 0; i < OUTPUT_SIZE; i++) {
         double target = (i == label) ? 1.0 : 0.0;
-        output_errors[i] = (target - network->output[i]) * sigmoid_derivative(network->output[i]);
+        output_errors[i] = (network->output[i] - target) * sigmoid_derivative(network->output[i]);
     }
 
     for (int i = 0; i < HIDDEN_SIZE; i++) {
         hidden_errors[i] = 0.0;
         for (int j = 0; j < OUTPUT_SIZE; j++) {
-            hidden_errors[i] += output_errors[j] * network->linear_layer1.weights[i][j];
+            hidden_errors[i] += network->linear_layer1.weights[i][j] * output_errors[j];
         }
         hidden_errors[i] *= sigmoid_derivative(network->hidden1[i]);
     }
@@ -56,14 +56,14 @@ void neuralnetwork_backward(NeuralNetwork *network, double *input, uint8_t label
     for (int i = 0; i < OUTPUT_SIZE; i++) {
         network->linear_layer1.biases[i] += learning_rate * output_errors[i];
         for (int j = 0; j < HIDDEN_SIZE; j++) {
-            network->linear_layer1.weights[j][i] += learning_rate * output_errors[i] * network->hidden1[j];
+            network->linear_layer1.weights[j][i] -= learning_rate * network->hidden1[j] * output_errors[i];
         }
     }
 
     for (int i = 0; i < HIDDEN_SIZE; i++) {
         network->linear_layer0.biases[i] += learning_rate * hidden_errors[i];
         for (int j = 0; j < INPUT_SIZE; j++) {
-            network->linear_layer0.weights[j][i] += learning_rate * hidden_errors[i] * input[j];
+            network->linear_layer0.weights[j][i] -= learning_rate * input[j] * hidden_errors[i];
         }
     }
 }

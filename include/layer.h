@@ -14,6 +14,11 @@ typedef struct linearlayer {
     double *biases;
 } LinearLayer;
 
+typedef enum activationfunction {
+    IDENTITY,
+    SIGMOID,
+} ActivationFunction;
+
 typedef struct sigmoidlayer {
     uint32_t size;
 } SigmoidLayer;
