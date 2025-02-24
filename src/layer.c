@@ -64,7 +64,13 @@ void linearlayer_save(LinearLayer *layer, const char *filename, bool verbose) {
         exit(EXIT_FAILURE);
     }
 
-    size_t res = fwrite(layer, sizeof(LinearLayer), 1, f);
+    size_t res = 1;
+    for (uint32_t i = 0; i < layer->output_size; i++) {
+        for (uint32_t j = 0; j < layer->input_size; j++) {
+            res = (res == 1) ? fwrite(&layer->weights[j][i], sizeof(double), 1, f) : res;
+        }
+        res = (res == 1) ? fwrite(&layer->biases[i], sizeof(double), 1, f) : res;
+    }
     fclose(f);
 
     if (res != 1) {
@@ -83,7 +89,13 @@ void linearlayer_load(LinearLayer *layer, const char *filename, bool verbose) {
         exit(EXIT_FAILURE);
     }
 
-    size_t res = fread(layer, sizeof(LinearLayer), 1, f);
+    size_t res = 1;
+    for (uint32_t i = 0; i < layer->output_size; i++) {
+        for (uint32_t j = 0; j < layer->input_size; j++) {
+            res = (res == 1) ? fread(&layer->weights[j][i], sizeof(double), 1, f) : res;
+        }
+        res = (res == 1) ? fread(&layer->biases[i], sizeof(double), 1, f) : res;
+    }
     fclose(f);
 
     if (res != 1) {
@@ -91,7 +103,7 @@ void linearlayer_load(LinearLayer *layer, const char *filename, bool verbose) {
         exit(EXIT_FAILURE);
     }
     if (verbose) {
-        printf("Successfully loaded SigmoidLayer from '%s'\n", filename);
+        printf("Successfully loaded LinearLayer from '%s'\n", filename);
     }
 }
 

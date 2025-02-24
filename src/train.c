@@ -16,19 +16,36 @@ int main(void) {
     }
 
     NeuralNetwork network = neuralnetwork_create();
+    TrainingContext context = {
+        .learning_rate = 0.01,
+        .number_of_epochs = 10,
+    };
     neuralnetwork_initialize(&network);
-    neuralnetwork_train(&network, images, labels, number_of_images, NUMBER_OF_EPOCHS);
+    neuralnetwork_train(&network, images, labels, number_of_images, &context);
 
-    neuralnetwork_save(&network, "model/my_nn_model");
+    neuralnetwork_save(&network, &context, "model/my_nn_model0");
 
-    double performance = neuralnetwork_benchmark(&network, images, labels, number_of_images);
-    printf("Neural Network results:\n   Accuracy: %.3f%%\n", performance * 100);
+    /****/
+    context.learning_rate += 0.01;
+    neuralnetwork_initialize(&network);
+    neuralnetwork_train(&network, images, labels, number_of_images, &context);
+    neuralnetwork_save(&network, &context, "model/my_nn_model1");
 
-    printf("Neural Network prediction examples:\n");
-    for (int i = 0; i < 10; i++) {
-        uint8_t answer = neuralnetwork_ask(&network, &images[i * INPUT_SIZE]);
-        printf("   %d recognized as a %d\n", labels[i], answer);
-    }
+    context.learning_rate += 0.01;
+    neuralnetwork_initialize(&network);
+    neuralnetwork_train(&network, images, labels, number_of_images, &context);
+    neuralnetwork_save(&network, &context, "model/my_nn_model2");
+
+    context.learning_rate += 0.01;
+    neuralnetwork_initialize(&network);
+    neuralnetwork_train(&network, images, labels, number_of_images, &context);
+    neuralnetwork_save(&network, &context, "model/my_nn_model3");
+
+    context.learning_rate += 0.01;
+    neuralnetwork_initialize(&network);
+    neuralnetwork_train(&network, images, labels, number_of_images, &context);
+    neuralnetwork_save(&network, &context, "model/my_nn_model4");
+    /****/
 
     neuralnetwork_destroy(&network);
     free(images);

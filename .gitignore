@@ -1,0 +1,4 @@
+*.o
+model/*.bin
+train
+test
