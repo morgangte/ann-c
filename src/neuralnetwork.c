@@ -40,32 +40,31 @@ void neuralnetwork_backward(NeuralNetwork *network, double *input, uint8_t label
     double output_errors[OUTPUT_SIZE];
     double hidden_errors[HIDDEN_SIZE];
 
-    for (int i = 0; i < OUTPUT_SIZE; i++) {
-        double target = (i == label) ? 1.0 : 0.0;
-        output_errors[i] = (network->output[i] - target) * sigmoid_derivative(network->output[i]);
-    }
+    LayerBackwardContext output_context = {
+        .hidden_layer = false,
+        .learning_rate = learning_rate,
+        .label = label,
+        .layer_input = network->hidden1,
+        .activation_function = SIGMOID_ACTIVATION,
+        .activation_output = network->output,
+        .layer_errors = output_errors,
+        .next_layer_output_size = 0,
+        .next_layer_errors = NULL,
+    };
+    linearlayer_backward(&network->linear_layer1, &output_context);
 
-    for (int i = 0; i < HIDDEN_SIZE; i++) {
-        hidden_errors[i] = 0.0;
-        for (int j = 0; j < OUTPUT_SIZE; j++) {
-            hidden_errors[i] += network->linear_layer1.weights[i][j] * output_errors[j];
-        }
-        hidden_errors[i] *= sigmoid_derivative(network->hidden1[i]);
-    }
-
-    for (int i = 0; i < OUTPUT_SIZE; i++) {
-        network->linear_layer1.biases[i] += learning_rate * output_errors[i];
-        for (int j = 0; j < HIDDEN_SIZE; j++) {
-            network->linear_layer1.weights[j][i] -= learning_rate * network->hidden1[j] * output_errors[i];
-        }
-    }
-
-    for (int i = 0; i < HIDDEN_SIZE; i++) {
-        network->linear_layer0.biases[i] += learning_rate * hidden_errors[i];
-        for (int j = 0; j < INPUT_SIZE; j++) {
-            network->linear_layer0.weights[j][i] -= learning_rate * input[j] * hidden_errors[i];
-        }
-    }
+    LayerBackwardContext hidden_context = {
+        .hidden_layer = true,
+        .learning_rate = learning_rate,
+        .label = 0,
+        .layer_input = input,
+        .activation_function = SIGMOID_ACTIVATION,
+        .activation_output = network->hidden1,
+        .layer_errors = hidden_errors,
+        .next_layer_output_size = OUTPUT_SIZE,
+        .next_layer_errors = output_errors,
+    };
+    linearlayer_backward(&network->linear_layer0, &hidden_context);
 }
 
 void neuralnetwork_train(NeuralNetwork *network, uint8_t *images, uint8_t *labels, uint32_t number_of_images, TrainingContext *context) {

@@ -17,7 +17,7 @@ int main(void) {
 
     NeuralNetwork network = neuralnetwork_create();
     TrainingContext context = {
-        .learning_rate = 0.05,
+        .learning_rate = 0.10,
         .number_of_epochs = 10,
     };
     neuralnetwork_initialize(&network);

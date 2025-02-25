@@ -15,9 +15,22 @@ typedef struct linearlayer {
 } LinearLayer;
 
 typedef enum activationfunction {
-    IDENTITY,
-    SIGMOID,
+    SIGMOID_ACTIVATION,
 } ActivationFunction;
+
+typedef struct layerbackwardcontext {
+    bool hidden_layer;
+    double learning_rate;
+    uint32_t label;
+
+    double *layer_input;
+    ActivationFunction activation_function;
+    double *activation_output;
+
+    double *layer_errors;
+    uint32_t next_layer_output_size;
+    double *next_layer_errors;
+} LayerBackwardContext;
 
 typedef struct sigmoidlayer {
     uint32_t size;
@@ -26,6 +39,10 @@ typedef struct sigmoidlayer {
 LinearLayer linearlayer_create(uint32_t input_size, uint32_t output_size);
 void linearlayer_initialize(LinearLayer *layer);
 void linearlayer_forward(LinearLayer *layer, double *input, double *output);
+
+void linearlayer_backward_sigmoid_activation(LinearLayer *layer, LayerBackwardContext *context);
+void linearlayer_backward(LinearLayer *layer, LayerBackwardContext *context);
+
 void linearlayer_destroy(LinearLayer *layer);
 
 void linearlayer_save(LinearLayer *layer, const char *filename, bool verbose);

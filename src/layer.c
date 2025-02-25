@@ -12,14 +12,18 @@ LinearLayer linearlayer_create(uint32_t input_size, uint32_t output_size) {
     };
 
     layer.biases = (double *)malloc(sizeof(double) * output_size);
-    if (!layer.biases) {
-        fprintf(stderr, "ERROR: failed to malloc() at linearlayer_create()\n");
+    double **weights = (double **)malloc(sizeof(double *) * input_size);
+    if (!weights || !layer.biases) {
+        fprintf(stderr, "ERROR: malloc() failed at linearlayer_create()\n");
         exit(EXIT_FAILURE);
     }
 
-    double **weights = (double **)malloc(sizeof(double *) * input_size);
     for (uint32_t i = 0; i < input_size; i++) {
         weights[i] = (double *)malloc(sizeof(double) * output_size);
+        if (!weights[i]) {
+            fprintf(stderr, "ERROR: malloc() failed at linearlayer_create()\n");
+            exit(EXIT_FAILURE);
+        }
     }
 
     layer.weights = weights;
@@ -43,6 +47,41 @@ void linearlayer_forward(LinearLayer *layer, double *input, double *output) {
             sum += input[j] * layer->weights[j][i];
         }
         output[i] = sum;
+    }
+}
+
+void linearlayer_backward_sigmoid_activation(LinearLayer *layer, LayerBackwardContext *context) {
+    if (context->hidden_layer) {
+        for (uint32_t i = 0; i < layer->output_size; i++) {
+            context->layer_errors[i] = 0.0;
+            for (uint32_t j = 0; j < context->next_layer_output_size; j++) {
+                context->layer_errors[i] += layer->weights[i][j] * context->next_layer_errors[j];
+            }
+            context->layer_errors[i] *= sigmoid_derivative(context->activation_output[i]);
+        }
+    } else {
+        for (uint32_t i = 0; i < layer->output_size; i++) {
+            double target = (i == context->label) ? 1.0 : 0.0;
+            context->layer_errors[i] = (context->activation_output[i] - target) * sigmoid_derivative(context->activation_output[i]);
+        }
+    }
+
+    for (uint32_t i = 0; i < layer->output_size; i++) {
+        layer->biases[i] += context->learning_rate * context->layer_errors[i];
+        for (uint32_t j = 0; j < layer->input_size; j++) {
+            layer->weights[j][i] -= context->learning_rate * context->layer_input[j] * context->layer_errors[i];
+        }
+    }
+}
+
+void linearlayer_backward(LinearLayer *layer, LayerBackwardContext *context) {
+    switch (context->activation_function) {
+        case SIGMOID_ACTIVATION:
+            linearlayer_backward_sigmoid_activation(layer, context);
+            return;
+        default:
+            printf("ERROR at linearlayer_backward(): Unsupported activation function\n");
+            exit(EXIT_FAILURE);
     }
 }
 

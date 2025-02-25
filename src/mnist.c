@@ -8,7 +8,7 @@ uint32_t read_uint32(FILE *f) {
     uint32_t result;
     if (fread(&result, sizeof(result), 1, f) != 1) {
         perror("Failed to read uint32_t");
-        exit(1);
+        exit(EXIT_FAILURE);
     }
     return __builtin_bswap32(result);
 }
@@ -17,7 +17,7 @@ uint8_t *load_mnist_images(const char *filename, uint32_t *num_images, uint32_t 
     FILE *f = fopen(filename, "rb");
     if (!f) {
         perror("Failed to open images file");
-        exit(1);
+        exit(EXIT_FAILURE);
     }
     printf("Opened image file: %s\n", filename);
 
@@ -31,13 +31,13 @@ uint8_t *load_mnist_images(const char *filename, uint32_t *num_images, uint32_t 
     uint8_t *images = (uint8_t *)malloc((*num_images) * (*image_size));
     if (!images) {
         perror("Failed to allocate memory for images");
-        exit(1);
+        exit(EXIT_FAILURE);
     }
 
     if (fread(images, *image_size, *num_images, f) != (size_t)(*num_images)) {
         perror("Failed to read images");
         free(images);
-        exit(1);
+        exit(EXIT_FAILURE);
     }
 
     fclose(f);
@@ -48,7 +48,7 @@ uint8_t *load_mnist_labels(const char *filename, uint32_t *num_labels) {
     FILE *f = fopen(filename, "rb");
     if (!f) {
         perror("Failed to open labels file");
-        exit(1);
+        exit(EXIT_FAILURE);
     }
     printf("Opened label file: %s\n", filename);
 
@@ -59,13 +59,13 @@ uint8_t *load_mnist_labels(const char *filename, uint32_t *num_labels) {
     uint8_t *labels = (uint8_t *)malloc(*num_labels);
     if (!labels) {
         perror("Failed to allocate memory for labels");
-        exit(1);
+        exit(EXIT_FAILURE);
     }
 
     if (fread(labels, 1, *num_labels, f) != (size_t)(*num_labels)) {
         perror("Failed to read labels");
         free(labels);
-        exit(1);
+        exit(EXIT_FAILURE);
     }
 
     fclose(f);
