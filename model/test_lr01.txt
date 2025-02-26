@@ -19,3 +19,25 @@ Neural Network results:
       3 recognized as a 3
       1 recognized as a 1
       4 recognized as a 4
+Opened image file: data/train-images-idx3-ubyte
+Opened label file: data/train-labels-idx1-ubyte
+Image size: 784
+Successfully loaded Layer from 'model/nn_hidden.bin'
+Successfully loaded Layer from 'model/nn_output.bin'
+Successfully loaded NeuralNetwork training context from 'model/nn_trainingcontext.bin'
+NN results:
+   Training context:
+      10 epochs
+      learning rate: 0.100
+   Accuracy: 97.039%
+   Prediction examples:
+      5 recognized as a 5
+      0 recognized as a 0
+      4 recognized as a 4
+      1 recognized as a 1
+      9 recognized as a 9
+      2 recognized as a 2
+      1 recognized as a 1
+      3 recognized as a 3
+      1 recognized as a 1
+      4 recognized as a 4

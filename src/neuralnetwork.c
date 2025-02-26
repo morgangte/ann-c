@@ -10,17 +10,15 @@
 
 NeuralNetwork neuralnetwork_create() {
     return (NeuralNetwork){
-        .linear_layer0 = linearlayer_create(INPUT_SIZE, HIDDEN_SIZE),
-        .sigmoid_layer0 = sigmoidlayer_create(HIDDEN_SIZE),
-        .linear_layer1 = linearlayer_create(HIDDEN_SIZE, OUTPUT_SIZE),
-        .sigmoid_layer1 = sigmoidlayer_create(OUTPUT_SIZE),
+        .hidden_layer = layer_create(INPUT_SIZE, SIGMOID_ACTIVATION, HIDDEN_SIZE),
+        .output_layer = layer_create(HIDDEN_SIZE, SIGMOID_ACTIVATION, OUTPUT_SIZE),
     };
 }
 
 void neuralnetwork_initialize(NeuralNetwork *network) {
     srand(time(NULL));
-    linearlayer_initialize(&network->linear_layer0);
-    linearlayer_initialize(&network->linear_layer1);
+    layer_initialize(&network->hidden_layer);
+    layer_initialize(&network->output_layer);
 }
 
 void prepare_input(uint8_t *raw, double *prepared, uint32_t size) {
@@ -30,41 +28,37 @@ void prepare_input(uint8_t *raw, double *prepared, uint32_t size) {
 }
 
 void neuralnetwork_forward(NeuralNetwork *network, double *input) {
-    linearlayer_forward(&network->linear_layer0, input, network->hidden0);
-    sigmoidlayer_forward(&network->sigmoid_layer0, network->hidden0, network->hidden1);
-    linearlayer_forward(&network->linear_layer1, network->hidden1, network->hidden2);
-    sigmoidlayer_forward(&network->sigmoid_layer1, network->hidden2, network->output);
+    layer_forward(&network->hidden_layer, input, network->hidden);
+    layer_forward(&network->output_layer, network->hidden, network->output);
 }
 
 void neuralnetwork_backward(NeuralNetwork *network, double *input, uint8_t label, double learning_rate) {
     double output_errors[OUTPUT_SIZE];
     double hidden_errors[HIDDEN_SIZE];
 
-    LayerBackwardContext output_context = {
+    LayerTrainingContext output_context = {
         .hidden_layer = false,
         .learning_rate = learning_rate,
         .label = label,
-        .layer_input = network->hidden1,
-        .activation_function = SIGMOID_ACTIVATION,
-        .activation_output = network->output,
+        .input = network->hidden,
+        .output = network->output,
         .layer_errors = output_errors,
         .next_layer_output_size = 0,
         .next_layer_errors = NULL,
     };
-    linearlayer_backward(&network->linear_layer1, &output_context);
+    layer_backward(&network->output_layer, &output_context);
 
-    LayerBackwardContext hidden_context = {
+    LayerTrainingContext hidden_context = {
         .hidden_layer = true,
         .learning_rate = learning_rate,
         .label = 0,
-        .layer_input = input,
-        .activation_function = SIGMOID_ACTIVATION,
-        .activation_output = network->hidden1,
+        .input = input,
+        .output = network->hidden,
         .layer_errors = hidden_errors,
         .next_layer_output_size = OUTPUT_SIZE,
         .next_layer_errors = output_errors,
     };
-    linearlayer_backward(&network->linear_layer0, &hidden_context);
+    layer_backward(&network->hidden_layer, &hidden_context);
 }
 
 void neuralnetwork_train(NeuralNetwork *network, uint8_t *images, uint8_t *labels, uint32_t number_of_images, TrainingContext *context) {
@@ -109,20 +103,20 @@ double neuralnetwork_benchmark(NeuralNetwork *network, uint8_t *images, uint8_t 
 }
 
 void neuralnetwork_destroy(NeuralNetwork *network) {
-    linearlayer_destroy(&network->linear_layer0);
-    linearlayer_destroy(&network->linear_layer1);
+    layer_destroy(&network->hidden_layer);
+    layer_destroy(&network->output_layer);
 }
 
 void neuralnetwork_save(NeuralNetwork *network, TrainingContext *context, const char *base_filename) {
-    char *filename = (char *)malloc(strlen(base_filename) + 8);
+    char *filename = (char *)malloc(strlen(base_filename) + 20);
 
     strcpy(filename, base_filename);
-    strcat(filename, "_ll0.bin");
-    linearlayer_save(&network->linear_layer0, filename, true);
+    strcat(filename, "_hidden.bin");
+    layer_save(&network->hidden_layer, filename, true);
 
     strcpy(filename, base_filename);
-    strcat(filename, "_ll1.bin");
-    linearlayer_save(&network->linear_layer1, filename, true);
+    strcat(filename, "_output.bin");
+    layer_save(&network->output_layer, filename, true);
 
     strcpy(filename, base_filename);
     strcat(filename, "_trainingcontext.bin");
@@ -132,15 +126,15 @@ void neuralnetwork_save(NeuralNetwork *network, TrainingContext *context, const 
 }
 
 void neuralnetwork_load(NeuralNetwork *network, TrainingContext *context, const char *base_filename) {
-    char *filename = (char *)malloc(strlen(base_filename) + 8);
+    char *filename = (char *)malloc(strlen(base_filename) + 20);
 
     strcpy(filename, base_filename);
-    strcat(filename, "_ll0.bin");
-    linearlayer_load(&network->linear_layer0, filename, true);
+    strcat(filename, "_hidden.bin");
+    layer_load(&network->hidden_layer, filename, true);
 
     strcpy(filename, base_filename);
-    strcat(filename, "_ll1.bin");
-    linearlayer_load(&network->linear_layer1, filename, true);
+    strcat(filename, "_output.bin");
+    layer_load(&network->output_layer, filename, true);
 
     strcpy(filename, base_filename);
     strcat(filename, "_trainingcontext.bin");
