@@ -19,21 +19,30 @@ NeuralNetwork neuralnetwork_create(uint16_t number_of_layers) {
 }
 
 void neuralnetwork_add_layer(NeuralNetwork *network, uint32_t input_size, ActivationFunction activation_function, uint32_t output_size) {
-    // printf("entered nn_add_layer\n");
     assert(network->layers_size < network->layers_capacity);
 
     if (!network->layers) {
         network->layers = (Layer *)malloc(network->layers_capacity * sizeof(Layer));
+        if (!network->layers) {
+            fprintf(stderr, "ERROR: malloc() failed at neuralnetwork_add_layer()\n");
+            exit(EXIT_FAILURE);
+        }
     }
     if (!network->layers_outputs) {
         network->layers_outputs = (double **)malloc(network->layers_capacity * sizeof(double *));
+        if (!network->layers_outputs) {
+            fprintf(stderr, "ERROR: malloc() failed at neuralnetwork_add_layer()\n");
+            exit(EXIT_FAILURE);
+        }
     }
 
     network->layers[network->layers_size] = layer_create(input_size, activation_function, output_size);
-    // printf("Created Activation function: %d\n", network->layers[network->layers_size].activation_function);
     network->layers_outputs[network->layers_size] = (double *)malloc(output_size * sizeof(double));
+    if (!network->layers_outputs[network->layers_size]) {
+        fprintf(stderr, "ERROR: malloc() failed at neuralnetwork_add_layer()\n");
+        exit(EXIT_FAILURE);
+    }
     network->layers_size += 1;
-    // printf("add layer layers_size %d\n", network->layers_size);
 }
 
 void neuralnetwork_initialize(NeuralNetwork *network) {
@@ -60,20 +69,13 @@ void neuralnetwork_forward(NeuralNetwork *network, double *input) {
 }
 
 void neuralnetwork_backward(NeuralNetwork *network, double *input, BackwardContext *backward_context) {
-    // double output_errors[OUTPUT_SIZE];
-    // double hidden_errors[HIDDEN_SIZE];
-    // printf("back Activation function: %d\n", network->layers[0].activation_function);
-    // printf("back layers size = %d\n", network->layers_size);
-
-    LayerTrainingContext layer_backward_context = {
+    LayerBackwardContext layer_backward_context = {
         .learning_rate = backward_context->learning_rate,
         .label = backward_context->label,
     };
 
-    // printf("- %d\n", network->layers_size);
-    for (uint16_t i = 0; i < network->layers_size - 1; i++) {
+    for (uint16_t i = 0; i < network->layers_size; i++) {
         uint16_t layer_index = network->layers_size - 1 - i;
-        // printf("%d, layer index = %d\n", i, layer_index);
         layer_backward_context.hidden_layer = (layer_index < network->layers_size - 1);
         layer_backward_context.input = (layer_index == 0) ? input : network->layers_outputs[layer_index - 1];
         layer_backward_context.output = network->layers_outputs[layer_index];
@@ -81,34 +83,8 @@ void neuralnetwork_backward(NeuralNetwork *network, double *input, BackwardConte
         layer_backward_context.next_layer_output_size = (layer_index == network->layers_size - 1) ? 0 : network->layers[layer_index + 1].output_size;
         layer_backward_context.next_layer_errors = (layer_index == network->layers_size - 1) ? NULL : backward_context->layers_errors[layer_index + 1];
 
-        // printf("Activation function: %d\n", network->layers[layer_index].activation_function);
-        // printf("Going into layer_backward\n");
         layer_backward(&network->layers[layer_index], &layer_backward_context);
     }
-    /*
-        LayerTrainingContext output_context = {
-            .hidden_layer = false,
-            .learning_rate = learning_rate,
-            .label = label,
-            .input = network->hidden,
-            .output = network->output,
-            .layer_errors = output_errors,
-            .next_layer_output_size = 0,
-            .next_layer_errors = NULL,
-        };
-        layer_backward(&network->output_layer, &output_context);
-
-        LayerTrainingContext hidden_context = {
-            .hidden_layer = true,
-            .learning_rate = learning_rate,
-            .label = 0,
-            .input = input,
-            .output = network->hidden,
-            .layer_errors = hidden_errors,
-            .next_layer_output_size = OUTPUT_SIZE,
-            .next_layer_errors = output_errors,
-        };
-        layer_backward(&network->hidden_layer, &hidden_context);*/
 }
 
 BackwardContext backwardcontext_create(NeuralNetwork *network, double learning_rate) {
@@ -247,10 +223,8 @@ void neuralnetwork_load(NeuralNetwork *network, TrainingContext *context, const 
         perror("fread() failed at neuralnetwork_load()");
         exit(EXIT_FAILURE);
     }
-    // printf("loaded number of layers %d\n", number_of_layers);
 
     *network = neuralnetwork_create(number_of_layers);
-    // printf("loaded number of layers %d\n", network->layers_size);
     size_t res = 1;
     uint32_t input_size;
     ActivationFunction activation_function;
@@ -277,6 +251,5 @@ void neuralnetwork_load(NeuralNetwork *network, TrainingContext *context, const 
         exit(EXIT_FAILURE);
     }
 
-    // printf("final loaded number of layers %d\n", network->layers_size);
     fclose(file);
 }

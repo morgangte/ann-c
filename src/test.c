@@ -35,7 +35,7 @@ int main(void) {
 
     NeuralNetwork network;
     TrainingContext context;
-    neuralnetwork_load(&network, &context, "model/nn");
+    neuralnetwork_load(&network, &context, "model/nn.bin");
 
     double accuracy = neuralnetwork_benchmark(&network, images, labels, number_of_images);
     print_results(&network, images, labels, accuracy, &context);

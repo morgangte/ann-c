@@ -9,7 +9,7 @@
 
 #define RANDOM(min, max) (((max) - (min)) * (double)rand() / RAND_MAX + (min))
 
-typedef struct layertrainingcontext {
+typedef struct layerbackwardcontext {
     bool hidden_layer;
     double learning_rate;
     uint32_t label;
@@ -20,7 +20,7 @@ typedef struct layertrainingcontext {
     double *layer_errors;
     uint32_t next_layer_output_size;
     double *next_layer_errors;
-} LayerTrainingContext;
+} LayerBackwardContext;
 
 typedef enum activationfunction {
     SIGMOID_ACTIVATION,
@@ -39,8 +39,8 @@ Layer layer_create(uint32_t input_size, ActivationFunction activation_function, 
 void layer_initialize(Layer *layer);
 void layer_forward(Layer *layer, double *input, double *output);
 
-void layer_backward_sigmoid(Layer *layer, LayerTrainingContext *context);
-void layer_backward(Layer *layer, LayerTrainingContext *context);
+void layer_backward_sigmoid(Layer *layer, LayerBackwardContext *context);
+void layer_backward(Layer *layer, LayerBackwardContext *context);
 
 void layer_destroy(Layer *layer);
 

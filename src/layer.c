@@ -60,10 +60,8 @@ void layer_forward(Layer *layer, double *input, double *output) {
     }
 }
 
-void layer_backward_sigmoid(Layer *layer, LayerTrainingContext *context) {
-    // printf("entered layer bacward sigmoid\n");
+void layer_backward_sigmoid(Layer *layer, LayerBackwardContext *context) {
     if (context->hidden_layer) {
-        // printf("  hidden layer\n");
         for (uint32_t i = 0; i < layer->output_size; i++) {
             context->layer_errors[i] = 0.0;
             for (uint32_t j = 0; j < context->next_layer_output_size; j++) {
@@ -72,34 +70,24 @@ void layer_backward_sigmoid(Layer *layer, LayerTrainingContext *context) {
             context->layer_errors[i] *= sigmoid_derivative(context->output[i]);
         }
     } else {
-        // printf("  output layer\n");
         for (uint32_t i = 0; i < layer->output_size; i++) {
-            // // printf("  a\n");
             double target = (i == context->label) ? 1.0 : 0.0;
-            // // printf("  b\n");
             context->layer_errors[i] = (context->output[i] - target) * sigmoid_derivative(context->output[i]);
-            // // printf("  c\n");
         }
     }
 
-    // printf("  bias and weight update\n");
     for (uint32_t i = 0; i < layer->output_size; i++) {
-        // printf("  a\n");
         layer->biases[i] += context->learning_rate * context->layer_errors[i];
-        // printf("  b\n");
         for (uint32_t j = 0; j < layer->input_size; j++) {
-            // printf("  c\n");
             layer->weights[j][i] -= context->learning_rate * context->input[j] * context->layer_errors[i];
         }
-        // printf("  d\n");
     }
 }
 
-void layer_backward(Layer *layer, LayerTrainingContext *context) {
+void layer_backward(Layer *layer, LayerBackwardContext *context) {
     switch (layer->activation_function) {
         case SIGMOID_ACTIVATION:
             layer_backward_sigmoid(layer, context);
-            // printf("layer_backward ended\n");
             return;
         default:
             printf("ERROR at layer_backward(): Unsupported activation function\n");

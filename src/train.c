@@ -25,7 +25,7 @@ int main(void) {
     };
     neuralnetwork_train(&network, images, labels, number_of_images, &context);
 
-    neuralnetwork_save(&network, &context, "model/nn");
+    neuralnetwork_save(&network, &context, "model/nn.bin");
 
     neuralnetwork_destroy(&network);
     free(images);
