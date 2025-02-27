@@ -28,7 +28,7 @@ neuralnetwork_initialize(&network);
 
 Available activation functions are: 
 - Sigmoid function (`SIGMOID_ACTIVATION`)
-- Softmax function (`SOFTMAX_ACTIVATION`)
+- **Safe** Softmax function (`SOFTMAX_ACTIVATION`)
 
 Provide training parameters and train your model:
 
@@ -45,6 +45,10 @@ In the case of a classifier, ask the ANN for the class of a given input:
 ```c
 uint8_t answer = neuralnetwork_ask(&network, input);
 ```
+
+## Notes
+
+The mathematical library `libm` is used. Your executable should be linked with the `-lm` directive. 
 
 ## Author
 
