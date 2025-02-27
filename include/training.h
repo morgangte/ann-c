@@ -3,13 +3,14 @@
 
 #include <stdbool.h>
 #include <stdint.h>
+#include <stdio.h>
 
 typedef struct trainingcontext {
     double learning_rate;
     uint32_t number_of_epochs;
 } TrainingContext;
 
-void trainingcontext_save(TrainingContext *context, const char *filename, bool verbose);
-void trainingcontext_load(TrainingContext *context, const char *filename, bool verbose);
+int trainingcontext_save(TrainingContext *context, FILE *file);
+int trainingcontext_load(TrainingContext *context, FILE *file);
 
 #endif  // TRAINING_CONTEXT_H

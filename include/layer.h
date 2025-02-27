@@ -5,54 +5,49 @@
 #include <stdint.h>
 #include <stdlib.h>
 
+#include "training.h"
+
 #define RANDOM(min, max) (((max) - (min)) * (double)rand() / RAND_MAX + (min))
-
-typedef struct linearlayer {
-    uint32_t input_size;
-    uint32_t output_size;
-    double **weights;
-    double *biases;
-} LinearLayer;
-
-typedef enum activationfunction {
-    SIGMOID_ACTIVATION,
-} ActivationFunction;
 
 typedef struct layerbackwardcontext {
     bool hidden_layer;
     double learning_rate;
     uint32_t label;
 
-    double *layer_input;
-    ActivationFunction activation_function;
-    double *activation_output;
+    double *input;
+    double *output;
 
     double *layer_errors;
     uint32_t next_layer_output_size;
     double *next_layer_errors;
 } LayerBackwardContext;
 
-typedef struct sigmoidlayer {
-    uint32_t size;
-} SigmoidLayer;
+typedef enum activationfunction {
+    SIGMOID_ACTIVATION,
+} ActivationFunction;
 
-LinearLayer linearlayer_create(uint32_t input_size, uint32_t output_size);
-void linearlayer_initialize(LinearLayer *layer);
-void linearlayer_forward(LinearLayer *layer, double *input, double *output);
+typedef struct layer {
+    uint32_t input_size;
+    double *biases;
+    double **weights;
+    uint32_t output_size;
+    ActivationFunction activation_function;
+    double (*activate)(double x);
+} Layer;
 
-void linearlayer_backward_sigmoid_activation(LinearLayer *layer, LayerBackwardContext *context);
-void linearlayer_backward(LinearLayer *layer, LayerBackwardContext *context);
+Layer layer_create(uint32_t input_size, ActivationFunction activation_function, uint32_t output_size);
+void layer_initialize(Layer *layer);
+void layer_forward(Layer *layer, double *input, double *output);
 
-void linearlayer_destroy(LinearLayer *layer);
+void layer_backward_sigmoid(Layer *layer, LayerBackwardContext *context);
+void layer_backward(Layer *layer, LayerBackwardContext *context);
 
-void linearlayer_save(LinearLayer *layer, const char *filename, bool verbose);
-void linearlayer_load(LinearLayer *layer, const char *filename, bool verbose);
+void layer_destroy(Layer *layer);
 
-SigmoidLayer sigmoidlayer_create(uint32_t size);
+int layer_save(Layer *layer, FILE *file);
+int layer_load(Layer *layer, FILE *file);
 
 double sigmoid(double x);
-double sigmoid_derivative(double x);
-
-void sigmoidlayer_forward(SigmoidLayer *layer, double *input, double *output);
+double sigmoid_derivative(double sigmoid_x);
 
 #endif
