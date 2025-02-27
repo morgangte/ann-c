@@ -32,17 +32,15 @@ int main(void) {
         fprintf(stderr, "ERROR: The number of images and labels don't match\n");
         exit(EXIT_FAILURE);
     }
-    // printf("Image size: %d\n", image_size);
 
-    NeuralNetwork network = neuralnetwork_create();
+    NeuralNetwork network;
     TrainingContext context;
     neuralnetwork_load(&network, &context, "model/nn");
 
-    double performance = neuralnetwork_benchmark(&network, images, labels, number_of_images);
-    print_results(&network, images, labels, performance, &context);
+    double accuracy = neuralnetwork_benchmark(&network, images, labels, number_of_images);
+    print_results(&network, images, labels, accuracy, &context);
 
     neuralnetwork_destroy(&network);
-
     free(images);
     free(labels);
     return EXIT_SUCCESS;

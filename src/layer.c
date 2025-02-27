@@ -61,7 +61,9 @@ void layer_forward(Layer *layer, double *input, double *output) {
 }
 
 void layer_backward_sigmoid(Layer *layer, LayerTrainingContext *context) {
+    // printf("entered layer bacward sigmoid\n");
     if (context->hidden_layer) {
+        // printf("  hidden layer\n");
         for (uint32_t i = 0; i < layer->output_size; i++) {
             context->layer_errors[i] = 0.0;
             for (uint32_t j = 0; j < context->next_layer_output_size; j++) {
@@ -70,17 +72,26 @@ void layer_backward_sigmoid(Layer *layer, LayerTrainingContext *context) {
             context->layer_errors[i] *= sigmoid_derivative(context->output[i]);
         }
     } else {
+        // printf("  output layer\n");
         for (uint32_t i = 0; i < layer->output_size; i++) {
+            // // printf("  a\n");
             double target = (i == context->label) ? 1.0 : 0.0;
+            // // printf("  b\n");
             context->layer_errors[i] = (context->output[i] - target) * sigmoid_derivative(context->output[i]);
+            // // printf("  c\n");
         }
     }
 
+    // printf("  bias and weight update\n");
     for (uint32_t i = 0; i < layer->output_size; i++) {
+        // printf("  a\n");
         layer->biases[i] += context->learning_rate * context->layer_errors[i];
+        // printf("  b\n");
         for (uint32_t j = 0; j < layer->input_size; j++) {
+            // printf("  c\n");
             layer->weights[j][i] -= context->learning_rate * context->input[j] * context->layer_errors[i];
         }
+        // printf("  d\n");
     }
 }
 
@@ -88,6 +99,7 @@ void layer_backward(Layer *layer, LayerTrainingContext *context) {
     switch (layer->activation_function) {
         case SIGMOID_ACTIVATION:
             layer_backward_sigmoid(layer, context);
+            // printf("layer_backward ended\n");
             return;
         default:
             printf("ERROR at layer_backward(): Unsupported activation function\n");
@@ -103,54 +115,38 @@ void layer_destroy(Layer *layer) {
     free(layer->weights);
 }
 
-void layer_save(Layer *layer, const char *filename, bool verbose) {
-    FILE *f = fopen(filename, "wb");
-    if (!f) {
-        perror("fopen() failed at layer_save()");
-        exit(EXIT_FAILURE);
-    }
-
+int layer_save(Layer *layer, FILE *file) {
     size_t res = 1;
     for (uint32_t i = 0; i < layer->output_size; i++) {
         for (uint32_t j = 0; j < layer->input_size; j++) {
-            res = (res == 1) ? fwrite(&layer->weights[j][i], sizeof(double), 1, f) : res;
+            res = (res == 1) ? fwrite(&layer->weights[j][i], sizeof(double), 1, file) : res;
         }
-        res = (res == 1) ? fwrite(&layer->biases[i], sizeof(double), 1, f) : res;
+        res = (res == 1) ? fwrite(&layer->biases[i], sizeof(double), 1, file) : res;
     }
-    fclose(f);
 
     if (res != 1) {
         perror("fwrite() failed at layer_save()");
-        exit(EXIT_FAILURE);
+        return EXIT_FAILURE;
     }
-    if (verbose) {
-        printf("Successfully saved Layer to '%s'\n", filename);
-    }
+
+    return EXIT_SUCCESS;
 }
 
-void layer_load(Layer *layer, const char *filename, bool verbose) {
-    FILE *f = fopen(filename, "rb");
-    if (!f) {
-        perror("fopen() failed at layer_load()");
-        exit(EXIT_FAILURE);
-    }
-
+int layer_load(Layer *layer, FILE *file) {
     size_t res = 1;
     for (uint32_t i = 0; i < layer->output_size; i++) {
         for (uint32_t j = 0; j < layer->input_size; j++) {
-            res = (res == 1) ? fread(&layer->weights[j][i], sizeof(double), 1, f) : res;
+            res = (res == 1) ? fread(&layer->weights[j][i], sizeof(double), 1, file) : res;
         }
-        res = (res == 1) ? fread(&layer->biases[i], sizeof(double), 1, f) : res;
+        res = (res == 1) ? fread(&layer->biases[i], sizeof(double), 1, file) : res;
     }
-    fclose(f);
 
     if (res != 1) {
         perror("fread() failed at layer_load()");
-        exit(EXIT_FAILURE);
+        return EXIT_FAILURE;
     }
-    if (verbose) {
-        printf("Successfully loaded Layer from '%s'\n", filename);
-    }
+
+    return EXIT_SUCCESS;
 }
 
 double sigmoid(double x) {
