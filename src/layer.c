@@ -12,15 +12,6 @@ Layer layer_create(uint32_t input_size, ActivationFunction activation_function, 
         .activation_function = activation_function,
     };
 
-    switch (activation_function) {
-        case SIGMOID_ACTIVATION:
-            layer.activate = sigmoid;
-            break;
-        default:
-            fprintf(stderr, "ERROR at layer_create(): Unknown/Not supported activation function\n");
-            exit(EXIT_FAILURE);
-    }
-
     layer.biases = (double *)malloc(sizeof(double) * output_size);
     double **weights = (double **)malloc(sizeof(double *) * input_size);
     if (!weights || !layer.biases) {
@@ -49,14 +40,83 @@ void layer_initialize(Layer *layer) {
     }
 }
 
-void layer_forward(Layer *layer, double *input, double *output) {
+void layer_forward_linear(Layer *layer, double *input, double *output) {
     double sum = 0.0;
     for (uint32_t i = 0; i < layer->output_size; i++) {
         sum = layer->biases[i];
         for (uint32_t j = 0; j < layer->input_size; j++) {
             sum += input[j] * layer->weights[j][i];
         }
-        output[i] = layer->activate(sum);
+        output[i] = sum;
+    }
+}
+
+void layer_forward_sigmoid(Layer *layer, double *input, double *output) {
+    double sum = 0.0;
+    for (uint32_t i = 0; i < layer->output_size; i++) {
+        sum = layer->biases[i];
+        for (uint32_t j = 0; j < layer->input_size; j++) {
+            sum += input[j] * layer->weights[j][i];
+        }
+        output[i] = sigmoid(sum);
+    }
+}
+
+void layer_forward_softmax(Layer *layer, double *input, double *output) {
+    double sum = 0.0;
+    double sum_exp = 0.0;
+    for (uint32_t i = 0; i < layer->output_size; i++) {
+        sum = layer->biases[i];
+        for (uint32_t j = 0; j < layer->input_size; j++) {
+            sum += input[j] * layer->weights[j][i];
+        }
+
+        output[i] = exp(sum);
+        sum_exp += output[i];
+    }
+
+    for (uint32_t i = 0; i < layer->output_size; i++) {
+        output[i] = output[i] / sum_exp;
+    }
+}
+
+void layer_forward(Layer *layer, double *input, double *output) {
+    switch (layer->activation_function) {
+        case LINEAR_ACTIVATION:
+            layer_forward_linear(layer, input, output);
+            return;
+        case SIGMOID_ACTIVATION:
+            layer_forward_sigmoid(layer, input, output);
+            return;
+        case SOFTMAX_ACTIVATION:
+            layer_forward_softmax(layer, input, output);
+            return;
+        default:
+            printf("ERROR at layer_forward(): Unsupported activation function\n");
+            exit(EXIT_FAILURE);
+    }
+}
+
+void layer_backward_linear(Layer *layer, LayerBackwardContext *context) {
+    if (context->hidden_layer) {
+        for (uint32_t i = 0; i < layer->output_size; i++) {
+            context->layer_errors[i] = 0.0;
+            for (uint32_t j = 0; j < context->next_layer_output_size; j++) {
+                context->layer_errors[i] += layer->weights[i][j] * context->next_layer_errors[j];
+            }
+        }
+    } else {
+        for (uint32_t i = 0; i < layer->output_size; i++) {
+            double target = (i == context->label) ? 1.0 : 0.0;
+            context->layer_errors[i] = (context->output[i] - target);
+        }
+    }
+
+    for (uint32_t i = 0; i < layer->output_size; i++) {
+        layer->biases[i] += context->learning_rate * context->layer_errors[i];
+        for (uint32_t j = 0; j < layer->input_size; j++) {
+            layer->weights[j][i] -= context->learning_rate * context->input[j] * context->layer_errors[i];
+        }
     }
 }
 
@@ -84,10 +144,35 @@ void layer_backward_sigmoid(Layer *layer, LayerBackwardContext *context) {
     }
 }
 
+void layer_backward_softmax(Layer *layer, LayerBackwardContext *context) {
+    if (context->hidden_layer) {
+        fprintf(stderr, "ERROR: Softmax not supported for hidden layers\n");
+        exit(EXIT_FAILURE);
+    } else {
+        for (uint32_t i = 0; i < layer->output_size; i++) {
+            double target = (i == context->label) ? 1.0 : 0.0;
+            context->layer_errors[i] = (context->output[i] - target);
+        }
+    }
+
+    for (uint32_t i = 0; i < layer->output_size; i++) {
+        layer->biases[i] += context->learning_rate * context->layer_errors[i];
+        for (uint32_t j = 0; j < layer->input_size; j++) {
+            layer->weights[j][i] -= context->learning_rate * context->input[j] * context->layer_errors[i];
+        }
+    }
+}
+
 void layer_backward(Layer *layer, LayerBackwardContext *context) {
     switch (layer->activation_function) {
+        case LINEAR_ACTIVATION:
+            layer_backward_linear(layer, context);
+            return;
         case SIGMOID_ACTIVATION:
             layer_backward_sigmoid(layer, context);
+            return;
+        case SOFTMAX_ACTIVATION:
+            layer_backward_softmax(layer, context);
             return;
         default:
             printf("ERROR at layer_backward(): Unsupported activation function\n");

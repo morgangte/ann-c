@@ -16,12 +16,12 @@ int main(void) {
 
     NeuralNetwork network = neuralnetwork_create(2);
     neuralnetwork_add_layer(&network, INPUT_SIZE, SIGMOID_ACTIVATION, HIDDEN_SIZE);
-    neuralnetwork_add_layer(&network, HIDDEN_SIZE, SIGMOID_ACTIVATION, OUTPUT_SIZE);
+    neuralnetwork_add_layer(&network, HIDDEN_SIZE, SOFTMAX_ACTIVATION, OUTPUT_SIZE);
     neuralnetwork_initialize(&network);
 
     TrainingContext context = {
         .learning_rate = 0.10,
-        .number_of_epochs = 10,
+        .number_of_epochs = 5,
     };
     neuralnetwork_train(&network, images, labels, number_of_images, &context);
 
