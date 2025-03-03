@@ -1,5 +1,6 @@
 *.o
-model/*.bin
-train
-test
-model/nn
+
+# MNIST
+mnist/train
+mnist/test
+mnist/model/*.bin
