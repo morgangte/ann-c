@@ -8,6 +8,7 @@
 typedef struct trainingcontext {
     double learning_rate;
     uint32_t number_of_epochs;
+    uint32_t number_of_examples;
 } TrainingContext;
 
 int trainingcontext_save(TrainingContext *context, FILE *file);

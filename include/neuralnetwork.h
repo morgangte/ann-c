@@ -34,7 +34,7 @@ void neuralnetwork_add_layer(NeuralNetwork *network, uint32_t input_size, Activa
 void neuralnetwork_initialize(NeuralNetwork *network);
 void neuralnetwork_forward(NeuralNetwork *network, double *input);
 void neuralnetwork_backward(NeuralNetwork *network, double *input, BackwardContext *backward_context);
-void neuralnetwork_train(NeuralNetwork *network, uint8_t *images, uint8_t *labels, uint32_t number_of_images, TrainingContext *context);
+void neuralnetwork_train(NeuralNetwork *network, uint8_t *images, uint8_t *labels, TrainingContext *context);
 uint8_t neuralnetwork_ask(NeuralNetwork *network, uint8_t *image);
 double neuralnetwork_benchmark(NeuralNetwork *network, uint8_t *images, uint8_t *labels, uint32_t number_of_images);
 double *neuralnetwork_output(NeuralNetwork *network);

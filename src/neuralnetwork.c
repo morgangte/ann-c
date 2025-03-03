@@ -108,13 +108,13 @@ void backwardcontext_destroy(BackwardContext *context) {
     free(context->layers_errors);
 }
 
-void neuralnetwork_train(NeuralNetwork *network, uint8_t *images, uint8_t *labels, uint32_t number_of_images, TrainingContext *training_context) {
+void neuralnetwork_train(NeuralNetwork *network, uint8_t *images, uint8_t *labels, TrainingContext *training_context) {
     double prepared_input[INPUT_SIZE];
     BackwardContext backward_context = backwardcontext_create(network, training_context->learning_rate);
 
     for (uint32_t epoch = 0; epoch < training_context->number_of_epochs; epoch++) {
         printf("Running epoch %d/%d...\n", epoch + 1, training_context->number_of_epochs);
-        for (uint32_t i = 0; i < number_of_images; i++) {
+        for (uint32_t i = 0; i < training_context->number_of_examples; i++) {
             prepare_input(&images[i * INPUT_SIZE], prepared_input, INPUT_SIZE);
             backward_context.label = labels[i];
             neuralnetwork_forward(network, prepared_input);

@@ -7,8 +7,8 @@
 
 int main(void) {
     uint32_t number_of_images, image_size, number_of_labels;
-    uint8_t *images = load_mnist_images("data/train-images-idx3-ubyte", &number_of_images, &image_size);
-    uint8_t *labels = load_mnist_labels("data/train-labels-idx1-ubyte", &number_of_labels);
+    uint8_t *images = load_mnist_images("data/train-images", &number_of_images, &image_size);
+    uint8_t *labels = load_mnist_labels("data/train-labels", &number_of_labels);
     if (number_of_images != number_of_labels) {
         fprintf(stderr, "ERROR: The number of images and labels don't match\n");
         exit(EXIT_FAILURE);
@@ -22,10 +22,11 @@ int main(void) {
     TrainingContext context = {
         .learning_rate = 0.10,
         .number_of_epochs = 5,
+        .number_of_examples = number_of_images,
     };
-    neuralnetwork_train(&network, images, labels, number_of_images, &context);
+    neuralnetwork_train(&network, images, labels, &context);
 
-    neuralnetwork_save(&network, &context, "model/nn.bin");
+    neuralnetwork_save(&network, &context, "model/nn_split_datasets.bin");
 
     neuralnetwork_destroy(&network);
     free(images);
