@@ -28,6 +28,7 @@ neuralnetwork_initialize(&network);
 ```
 
 Available activation functions are: 
+- Linear function (`LINEAR_ACTIVATION`)
 - Sigmoid function (`SIGMOID_ACTIVATION`)
 - Softmax function (`SOFTMAX_ACTIVATION`) for the output layer
 
