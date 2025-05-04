@@ -1,11 +1,11 @@
-# mnist-nn-c
+# ann-c
 
 Artificial Neural Network (ANN) in C. 
 
 ## Example: MNIST handwritten digits dataset
 
 ```
-$ make
+$ make mnist
 $ ./train
 $ ./test
 ```
