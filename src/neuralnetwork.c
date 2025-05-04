@@ -52,12 +52,6 @@ void neuralnetwork_initialize(NeuralNetwork *network) {
     }
 }
 
-void prepare_input(uint8_t *raw, double *prepared, uint32_t size) {
-    for (uint32_t i = 0; i < size; i++) {
-        prepared[i] = raw[i] / 255.0;
-    }
-}
-
 void neuralnetwork_forward(NeuralNetwork *network, double *input) {
     double *layer_input = input;
     double *layer_output;
@@ -108,18 +102,26 @@ void backwardcontext_destroy(BackwardContext *context) {
     free(context->layers_errors);
 }
 
-void neuralnetwork_train(NeuralNetwork *network, uint8_t *images, uint8_t *labels, TrainingContext *training_context) {
-    double prepared_input[INPUT_SIZE];
+void neuralnetwork_train(NeuralNetwork *network, double *inputs, uint8_t *labels, TrainingContext *training_context) {
     BackwardContext backward_context = backwardcontext_create(network, training_context->learning_rate);
+    uint32_t input_size = neuralnetwork_input_size(network);
 
+    double mse;
+    uint8_t prediction;
+    double accuracy;
     for (uint32_t epoch = 0; epoch < training_context->number_of_epochs; epoch++) {
         printf("Running epoch %d/%d...\n", epoch + 1, training_context->number_of_epochs);
+        mse = 0.0;
         for (uint32_t i = 0; i < training_context->number_of_examples; i++) {
-            prepare_input(&images[i * INPUT_SIZE], prepared_input, INPUT_SIZE);
             backward_context.label = labels[i];
-            neuralnetwork_forward(network, prepared_input);
-            neuralnetwork_backward(network, prepared_input, &backward_context);
+            prediction = neuralnetwork_ask(network, &inputs[i * input_size]);
+            neuralnetwork_backward(network, &inputs[i * input_size], &backward_context);
+            mse += (labels[i] - prediction) * (labels[i] - prediction);
+            accuracy += (labels[i] == prediction) ? 1.0 : 0.0;
         }
+        mse = mse / training_context->number_of_examples;
+        accuracy = accuracy / training_context->number_of_examples;
+        printf("   Loss (MSE) = %f\n   Accuracy   = %f\n", mse, accuracy);
     }
 
     backwardcontext_destroy(&backward_context);
@@ -137,23 +139,29 @@ uint8_t max_index(double *array, uint8_t size) {
     return max_index;
 }
 
-uint8_t neuralnetwork_ask(NeuralNetwork *network, uint8_t *image) {
-    double prepared_input[INPUT_SIZE];
-
-    prepare_input(image, prepared_input, INPUT_SIZE);
-    neuralnetwork_forward(network, prepared_input);
-
-    return max_index(neuralnetwork_output(network), OUTPUT_SIZE);
+uint8_t neuralnetwork_ask(NeuralNetwork *network, double *input) {
+    neuralnetwork_forward(network, input);
+    return max_index(neuralnetwork_output(network), neuralnetwok_output_size(network));
 }
 
-double neuralnetwork_benchmark(NeuralNetwork *network, uint8_t *images, uint8_t *labels, uint32_t number_of_images) {
+double neuralnetwork_benchmark(NeuralNetwork *network, double *inputs, uint8_t *labels, uint32_t number_of_inputs) {
     uint32_t correct_predictions = 0;
-    for (uint32_t i = 0; i < number_of_images; i++) {
-        uint8_t answer = neuralnetwork_ask(network, &images[i * INPUT_SIZE]);
+    uint32_t input_size = neuralnetwork_input_size(network);
+    for (uint32_t i = 0; i < number_of_inputs; i++) {
+        uint8_t answer = neuralnetwork_ask(network, &inputs[i * input_size]);
         correct_predictions += (answer == labels[i]) ? 1 : 0;
     }
 
-    return (double)correct_predictions / number_of_images;
+    return (double)correct_predictions / number_of_inputs;
+}
+
+uint32_t neuralnetwork_input_size(NeuralNetwork *network) {
+    assert(network->layers_size > 0);
+    return network->layers[0].input_size;
+}
+
+uint32_t neuralnetwok_output_size(NeuralNetwork *network) {
+    return network->layers[network->layers_size - 1].output_size;
 }
 
 double *neuralnetwork_output(NeuralNetwork *network) {

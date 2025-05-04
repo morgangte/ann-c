@@ -1,6 +1,7 @@
 #include "layer.h"
 
 #include <math.h>
+#include <omp.h>
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -32,6 +33,7 @@ Layer layer_create(uint32_t input_size, ActivationFunction activation_function, 
 }
 
 void layer_initialize(Layer *layer) {
+#pragma omp parallel for schedule(static)
     for (uint32_t i = 0; i < layer->output_size; i++) {
         for (uint32_t j = 0; j < layer->input_size; j++) {
             layer->weights[j][i] = RANDOM(-1.0, 1.0);
@@ -41,9 +43,9 @@ void layer_initialize(Layer *layer) {
 }
 
 void layer_forward_linear(Layer *layer, double *input, double *output) {
-    double sum = 0.0;
+#pragma omp parallel for schedule(static)
     for (uint32_t i = 0; i < layer->output_size; i++) {
-        sum = layer->biases[i];
+        double sum = layer->biases[i];
         for (uint32_t j = 0; j < layer->input_size; j++) {
             sum += input[j] * layer->weights[j][i];
         }
@@ -52,9 +54,9 @@ void layer_forward_linear(Layer *layer, double *input, double *output) {
 }
 
 void layer_forward_sigmoid(Layer *layer, double *input, double *output) {
-    double sum = 0.0;
+#pragma omp parallel for schedule(static)
     for (uint32_t i = 0; i < layer->output_size; i++) {
-        sum = layer->biases[i];
+        double sum = layer->biases[i];
         for (uint32_t j = 0; j < layer->input_size; j++) {
             sum += input[j] * layer->weights[j][i];
         }
@@ -63,20 +65,27 @@ void layer_forward_sigmoid(Layer *layer, double *input, double *output) {
 }
 
 void layer_forward_softmax(Layer *layer, double *input, double *output) {
-    double sum = 0.0;
     double sum_exp = 0.0;
-    for (uint32_t i = 0; i < layer->output_size; i++) {
-        sum = layer->biases[i];
-        for (uint32_t j = 0; j < layer->input_size; j++) {
-            sum += input[j] * layer->weights[j][i];
+    
+#pragma omp parallel
+    {
+#pragma omp for schedule(static) reduction(+ : sum_exp)
+        for (uint32_t i = 0; i < layer->output_size; i++) {
+            double sum = layer->biases[i];
+            for (uint32_t j = 0; j < layer->input_size; j++) {
+                sum += input[j] * layer->weights[j][i];
+            }
+
+            output[i] = exp(sum);
+            sum_exp += output[i];
         }
 
-        output[i] = exp(sum);
-        sum_exp += output[i];
-    }
+#pragma omp barrier
 
-    for (uint32_t i = 0; i < layer->output_size; i++) {
-        output[i] = output[i] / sum_exp;
+#pragma omp for schedule(static)
+        for (uint32_t i = 0; i < layer->output_size; i++) {
+            output[i] = output[i] / sum_exp;
+        }
     }
 }
 
@@ -98,48 +107,64 @@ void layer_forward(Layer *layer, double *input, double *output) {
 }
 
 void layer_backward_linear(Layer *layer, LayerBackwardContext *context) {
-    if (context->hidden_layer) {
-        for (uint32_t i = 0; i < layer->output_size; i++) {
-            context->layer_errors[i] = 0.0;
-            for (uint32_t j = 0; j < context->next_layer_output_size; j++) {
-                context->layer_errors[i] += layer->weights[i][j] * context->next_layer_errors[j];
+#pragma omp parallel
+    {
+        if (context->hidden_layer) {
+#pragma omp for schedule(static)
+            for (uint32_t i = 0; i < layer->output_size; i++) {
+                context->layer_errors[i] = 0.0;
+                for (uint32_t j = 0; j < context->next_layer_output_size; j++) {
+                    context->layer_errors[i] += layer->weights[i][j] * context->next_layer_errors[j];
+                }
+            }
+        } else {
+#pragma omp for schedule(static)
+            for (uint32_t i = 0; i < layer->output_size; i++) {
+                double target = (i == context->label) ? 1.0 : 0.0;
+                context->layer_errors[i] = (context->output[i] - target);
             }
         }
-    } else {
-        for (uint32_t i = 0; i < layer->output_size; i++) {
-            double target = (i == context->label) ? 1.0 : 0.0;
-            context->layer_errors[i] = (context->output[i] - target);
-        }
-    }
 
-    for (uint32_t i = 0; i < layer->output_size; i++) {
-        layer->biases[i] += context->learning_rate * context->layer_errors[i];
-        for (uint32_t j = 0; j < layer->input_size; j++) {
-            layer->weights[j][i] -= context->learning_rate * context->input[j] * context->layer_errors[i];
+#pragma omp barrier
+
+#pragma omp for schedule(static)
+        for (uint32_t i = 0; i < layer->output_size; i++) {
+            layer->biases[i] += context->learning_rate * context->layer_errors[i];
+            for (uint32_t j = 0; j < layer->input_size; j++) {
+                layer->weights[j][i] -= context->learning_rate * context->input[j] * context->layer_errors[i];
+            }
         }
     }
 }
 
 void layer_backward_sigmoid(Layer *layer, LayerBackwardContext *context) {
-    if (context->hidden_layer) {
-        for (uint32_t i = 0; i < layer->output_size; i++) {
-            context->layer_errors[i] = 0.0;
-            for (uint32_t j = 0; j < context->next_layer_output_size; j++) {
-                context->layer_errors[i] += layer->weights[i][j] * context->next_layer_errors[j];
+#pragma omp parallel
+    {
+        if (context->hidden_layer) {
+#pragma omp for schedule(static)
+            for (uint32_t i = 0; i < layer->output_size; i++) {
+                context->layer_errors[i] = 0.0;
+                for (uint32_t j = 0; j < context->next_layer_output_size; j++) {
+                    context->layer_errors[i] += layer->weights[i][j] * context->next_layer_errors[j];
+                }
+                context->layer_errors[i] *= sigmoid_derivative(context->output[i]);
             }
-            context->layer_errors[i] *= sigmoid_derivative(context->output[i]);
+        } else {
+#pragma omp for schedule(static)
+            for (uint32_t i = 0; i < layer->output_size; i++) {
+                double target = (i == context->label) ? 1.0 : 0.0;
+                context->layer_errors[i] = (context->output[i] - target) * sigmoid_derivative(context->output[i]);
+            }
         }
-    } else {
-        for (uint32_t i = 0; i < layer->output_size; i++) {
-            double target = (i == context->label) ? 1.0 : 0.0;
-            context->layer_errors[i] = (context->output[i] - target) * sigmoid_derivative(context->output[i]);
-        }
-    }
 
-    for (uint32_t i = 0; i < layer->output_size; i++) {
-        layer->biases[i] += context->learning_rate * context->layer_errors[i];
-        for (uint32_t j = 0; j < layer->input_size; j++) {
-            layer->weights[j][i] -= context->learning_rate * context->input[j] * context->layer_errors[i];
+#pragma omp barrier
+
+#pragma omp for schedule(static)
+        for (uint32_t i = 0; i < layer->output_size; i++) {
+            layer->biases[i] += context->learning_rate * context->layer_errors[i];
+            for (uint32_t j = 0; j < layer->input_size; j++) {
+                layer->weights[j][i] -= context->learning_rate * context->input[j] * context->layer_errors[i];
+            }
         }
     }
 }
@@ -148,17 +173,24 @@ void layer_backward_softmax(Layer *layer, LayerBackwardContext *context) {
     if (context->hidden_layer) {
         fprintf(stderr, "ERROR: Softmax not supported for hidden layers\n");
         exit(EXIT_FAILURE);
-    } else {
+    }
+
+#pragma omp parallel
+    {
+#pragma omp for schedule(static)
         for (uint32_t i = 0; i < layer->output_size; i++) {
             double target = (i == context->label) ? 1.0 : 0.0;
             context->layer_errors[i] = (context->output[i] - target);
         }
-    }
 
-    for (uint32_t i = 0; i < layer->output_size; i++) {
-        layer->biases[i] += context->learning_rate * context->layer_errors[i];
-        for (uint32_t j = 0; j < layer->input_size; j++) {
-            layer->weights[j][i] -= context->learning_rate * context->input[j] * context->layer_errors[i];
+#pragma omp barrier
+
+#pragma omp for schedule(static)
+        for (uint32_t i = 0; i < layer->output_size; i++) {
+            layer->biases[i] += context->learning_rate * context->layer_errors[i];
+            for (uint32_t j = 0; j < layer->input_size; j++) {
+                layer->weights[j][i] -= context->learning_rate * context->input[j] * context->layer_errors[i];
+            }
         }
     }
 }

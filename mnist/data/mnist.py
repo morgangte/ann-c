@@ -1,6 +1,6 @@
 import numpy as np
-import tensorflow as tf
 import struct
+import tensorflow as tf
 
 TRAIN_IMAGES = "train-images.bin"
 TRAIN_LABELS = "train-labels.bin"
@@ -8,7 +8,7 @@ TRAIN_LABELS = "train-labels.bin"
 TEST_IMAGES = "test-images.bin"
 TEST_LABELS = "test-labels.bin"
 
-def load_data():
+def load_mnist_data():
     (train_images, train_labels), (test_images, test_labels) = tf.keras.datasets.mnist.load_data()
     assert train_images.shape == (60000, 28, 28)
     assert train_labels.shape == (60000, )
@@ -22,10 +22,10 @@ def save_mnist_binary(images, labels, images_path, labels_path):
         labels_file.write(struct.pack('>II', 2049, len(labels)))
         for image, label in zip(images, labels):
             images_file.write(image.tobytes())
-            labels_file.write(struct.pack('B', label))
+            labels_file.write(label.tobytes())
 
 if __name__ == "__main__":
-    (train_images, train_labels), (test_images, test_labels) = load_data()
+    (train_images, train_labels), (test_images, test_labels) = load_mnist_data()
     train_images = (train_images / 255.0 * 255).astype(np.uint8)
     test_images = (test_images / 255.0 * 255).astype(np.uint8)
 

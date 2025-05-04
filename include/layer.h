@@ -39,10 +39,12 @@ typedef struct layer {
 Layer layer_create(uint32_t input_size, ActivationFunction activation_function, uint32_t output_size);
 void layer_initialize(Layer *layer);
 
+void layer_forward_linear(Layer *layer, double *input, double *output);
 void layer_forward_sigmoid(Layer *layer, double *input, double *output);
 void layer_forward_softmax(Layer *layer, double *input, double *output);
 void layer_forward(Layer *layer, double *input, double *output);
 
+void layer_backward_linear(Layer *layer, LayerBackwardContext *context);
 void layer_backward_sigmoid(Layer *layer, LayerBackwardContext *context);
 void layer_backward_softmax(Layer *layer, LayerBackwardContext *context);
 void layer_backward(Layer *layer, LayerBackwardContext *context);

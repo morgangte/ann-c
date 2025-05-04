@@ -3,11 +3,12 @@
 #include <stdlib.h>
 
 #include "data.h"
+#include "mnist.h"
 #include "neuralnetwork.h"
 
-#define TEST_IMAGES 10
+#define TEST_PREDICTIONS 10
 
-void print_results(NeuralNetwork *network, uint8_t *images, uint8_t *labels, uint32_t test_examples, double performance, TrainingContext *context) {
+void print_results(NeuralNetwork *network, double *images, uint8_t *labels, uint32_t test_examples, double performance, TrainingContext *context) {
     printf(
         "Neural Network results:\n"
         "   Training context:\n"
@@ -20,9 +21,11 @@ void print_results(NeuralNetwork *network, uint8_t *images, uint8_t *labels, uin
         context->number_of_examples,
         performance * 100,
         test_examples);
+
+    uint32_t input_size = neuralnetwork_input_size(network);
     printf("   Prediction examples:\n");
-    for (int i = 0; i < TEST_IMAGES; i++) {
-        uint8_t answer = neuralnetwork_ask(network, &images[i * INPUT_SIZE]);
+    for (int i = 0; i < TEST_PREDICTIONS; i++) {
+        uint8_t answer = neuralnetwork_ask(network, &images[i * input_size]);
         printf("      %d recognized as a %d\n", labels[i], answer);
     }
 }
@@ -31,19 +34,26 @@ int main(void) {
     uint32_t number_of_images, image_size, number_of_labels;
     uint8_t *images = load_images("data/test-images.bin", &number_of_images, &image_size);
     uint8_t *labels = load_labels("data/test-labels.bin", &number_of_labels);
+    if (number_of_images != NUMBER_OF_IMAGES_TEST) {
+        fprintf(stderr, "ERROR: Unexpected number of images (expected %d, loaded %d)\n", NUMBER_OF_IMAGES_TEST, number_of_images);
+        exit(EXIT_FAILURE);
+    }
     if (number_of_images != number_of_labels) {
         fprintf(stderr, "ERROR: The number of images and labels don't match\n");
         exit(EXIT_FAILURE);
     }
+    double *prepared_images = (double *)malloc(sizeof(double) * IMAGE_SIZE * NUMBER_OF_IMAGES_TEST);
+    prepare_input(images, prepared_images, IMAGE_SIZE * NUMBER_OF_IMAGES_TEST);
 
     NeuralNetwork network;
     TrainingContext context;
     neuralnetwork_load(&network, &context, "model/nn_mnist.bin");
 
-    double accuracy = neuralnetwork_benchmark(&network, images, labels, number_of_images);
-    print_results(&network, images, labels, number_of_images, accuracy, &context);
+    double accuracy = neuralnetwork_benchmark(&network, prepared_images, labels, number_of_images);
+    print_results(&network, prepared_images, labels, number_of_images, accuracy, &context);
 
     neuralnetwork_destroy(&network);
+    free(prepared_images);
     free(images);
     free(labels);
     return EXIT_SUCCESS;

@@ -1,7 +1,7 @@
 CC=gcc
-CFLAGS=-Wall -Wextra -pedantic
+CFLAGS=-Wall -Wextra -pedantic -march=native -fopenmp
 CPPFLAGS=-I./$(INC_DIR)
-LIB=-lm
+LIB=-lm -fopenmp
 
 SRC_DIR=src
 INC_DIR=include
@@ -12,7 +12,7 @@ MNIST_DIR=mnist
 TRAIN_EXEC=train
 TEST_EXEC=test
 
-.PHONY: all mnist clean distclean
+.PHONY: all mnist clean distclean cleanmodel
 
 all: mnist
 
@@ -26,21 +26,23 @@ $(SRC_DIR)/neuralnetwork.o: $(SRC_DIR)/neuralnetwork.c $(INC_DIR)/neuralnetwork.
 $(SRC_DIR)/data.o: $(SRC_DIR)/data.c $(INC_DIR)/data.h
 
 $(SRC_DIR)/%.o:
-	$(CC) $(CPPFLAGS) $(CFLAGS) -c $< -o $@	
+	$(CC) $(CPPFLAGS) $(CFLAGS) -c $< -o $@
 
 # **************************** MNIST *******************************
 
-$(MNIST_DIR)/$(TRAIN_EXEC): $(MNIST_DIR)/$(SRC_DIR)/train.o $(SRC_DIR)/data.o $(SRC_DIR)/neuralnetwork.o $(SRC_DIR)/layer.o $(SRC_DIR)/training.o
+$(MNIST_DIR)/$(TRAIN_EXEC): $(MNIST_DIR)/$(SRC_DIR)/train.o $(MNIST_DIR)/$(SRC_DIR)/mnist.o $(SRC_DIR)/data.o $(SRC_DIR)/neuralnetwork.o $(SRC_DIR)/layer.o $(SRC_DIR)/training.o
 	$(CC) $^ -o $@ $(LIB)
 
-$(MNIST_DIR)/$(TEST_EXEC): $(MNIST_DIR)/$(SRC_DIR)/test.o $(SRC_DIR)/data.o $(SRC_DIR)/neuralnetwork.o $(SRC_DIR)/layer.o $(SRC_DIR)/training.o
+$(MNIST_DIR)/$(TEST_EXEC): $(MNIST_DIR)/$(SRC_DIR)/test.o $(MNIST_DIR)/$(SRC_DIR)/mnist.o $(SRC_DIR)/data.o $(SRC_DIR)/neuralnetwork.o $(SRC_DIR)/layer.o $(SRC_DIR)/training.o
 	$(CC) $^ -o $@ $(LIB)
 
+$(MNIST_DIR)/$(SRC_DIR)/mnist.o: $(MNIST_DIR)/$(SRC_DIR)/mnist.c $(MNIST_DIR)/$(INC_DIR)/mni
+cifar100: $(CIFAR100_DIR)/$(TRAIN_EXEC) $(CIFAR100_DIR)/$(TEST_EXEC)st.h
 $(MNIST_DIR)/$(SRC_DIR)/train.o: $(MNIST_DIR)/$(SRC_DIR)/train.c $(INC_DIR)/neuralnetwork.h $(INC_DIR)/data.h
 $(MNIST_DIR)/$(SRC_DIR)/test.o: $(MNIST_DIR)/$(SRC_DIR)/test.c $(INC_DIR)/neuralnetwork.h $(INC_DIR)/data.h
 
 $(MNIST_DIR)/$(SRC_DIR)/%.o:
-	$(CC) $(CPPFLAGS) $(CFLAGS) -c $< -o $@	
+	$(CC) $(CPPFLAGS) -I./$(MNIST_DIR)/$(INC_DIR) $(CFLAGS) -c $< -o $@	
 
 # *************************** Cleaning *****************************
 

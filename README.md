@@ -18,17 +18,17 @@ Create an ANN with 2 layers (one hidden, and the output layer):
 NeuralNetwork network = neuralnetwork_create(2);
 ```
 
-Configure each layers, and initialize your ANN (this will set random biases and weights to each layer):
+Configure each layers, and initialize your ANN (initialization will set random biases and weights to each layer):
 
 ```c
 neuralnetwork_add_layer(&network, INPUT_SIZE, SIGMOID_ACTIVATION, HIDDEN_SIZE);
-neuralnetwork_add_layer(&network, HIDDEN_SIZE, SIGMOID_ACTIVATION, OUTPUT_SIZE);
+neuralnetwork_add_layer(&network, HIDDEN_SIZE, SOFTMAX_ACTIVATION, OUTPUT_SIZE);
 neuralnetwork_initialize(&network);
 ```
 
 Available activation functions are: 
 - Sigmoid function (`SIGMOID_ACTIVATION`)
-- **Safe** Softmax function (`SOFTMAX_ACTIVATION`)
+- Softmax function (`SOFTMAX_ACTIVATION`) for the output layer
 
 Provide training parameters and train your model:
 
