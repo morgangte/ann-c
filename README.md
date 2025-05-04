@@ -6,6 +6,7 @@ Artificial Neural Network (ANN) in C.
 
 ```
 $ make mnist
+$ cd mnist
 $ ./train
 $ ./test
 ```
@@ -45,10 +46,6 @@ In the case of a classifier, ask the ANN for the class of a given input:
 ```c
 uint8_t answer = neuralnetwork_ask(&network, input);
 ```
-
-## Notes
-
-The mathematical library `libm` is used. Your executable should be linked with the `-lm` directive. 
 
 ## Author
 
