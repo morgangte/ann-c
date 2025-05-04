@@ -52,4 +52,4 @@ The mathematical library `libm` is used. Your executable should be linked with t
 
 ## Author
 
-- Morgan Gillette <morgan.gillette@ecole.ensicaen.fr>
+- Morgan Gillette <morgan.gte@gmail.com>
