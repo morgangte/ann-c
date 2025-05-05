@@ -20,8 +20,6 @@ uint8_t *load_images(const char *filename, uint32_t *num_images, uint32_t *image
         exit(EXIT_FAILURE);
     }
 
-    uint32_t magic = read_uint32(f);
-    magic = magic; // remove warning
     *num_images = read_uint32(f);
     uint32_t rows = read_uint32(f);
     uint32_t cols = read_uint32(f);
@@ -51,8 +49,6 @@ uint8_t *load_labels(const char *filename, uint32_t *num_labels) {
         exit(EXIT_FAILURE);
     }
 
-    uint32_t magic = read_uint32(f);
-    magic = magic; // remove warning
     *num_labels = read_uint32(f);
 
     uint8_t *labels = (uint8_t *)malloc(*num_labels);

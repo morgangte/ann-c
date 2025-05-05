@@ -18,8 +18,8 @@ def load_mnist_data():
 
 def save_mnist_binary(images, labels, images_path, labels_path):
     with open(images_path, 'wb') as images_file, open(labels_path, 'wb') as labels_file:
-        images_file.write(struct.pack('>IIII', 2051, len(images), 28, 28))
-        labels_file.write(struct.pack('>II', 2049, len(labels)))
+        images_file.write(struct.pack('>III', len(images), 28, 28))
+        labels_file.write(struct.pack('>I', len(labels)))
         for image, label in zip(images, labels):
             images_file.write(image.tobytes())
             labels_file.write(label.tobytes())
