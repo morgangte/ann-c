@@ -27,6 +27,7 @@ void print_results(NeuralNetwork *network, double *images, uint8_t *labels, uint
     for (int i = 0; i < TEST_PREDICTIONS; i++) {
         uint8_t answer = neuralnetwork_ask(network, &images[i * input_size]);
         printf("      %d recognized as a %d\n", labels[i], answer);
+        display_image(images + i * IMAGE_SIZE);
     }
 }
 

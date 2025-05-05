@@ -15,5 +15,6 @@
 #define OUTPUT_SIZE 10
 
 void prepare_input(uint8_t *raw, double *prepared, uint32_t size);
+void display_image(double *image);
 
 #endif  // MNIST_H
