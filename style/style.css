@@ -22,6 +22,12 @@ p {
     color: var(--text-primary-color);
 }
 
+a.link-with-icon {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25em;
+}
+
 h1,
 h2,
 h3,
