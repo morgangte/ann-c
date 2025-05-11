@@ -15,7 +15,7 @@ FASHION_MNIST_DIR=fashion-mnist
 TRAIN_EXEC=train
 TEST_EXEC=test
 
-.PHONY: all mnist fashion cifar10 clean distclean cleanmodel
+.PHONY: all mnist fashion clean distclean clobber
 
 all: 
 	@echo "Available targets:\n\
