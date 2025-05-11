@@ -4,6 +4,8 @@ Artificial Neural Network (ANN) in C.
 
 ## Example: MNIST hand-written digits dataset
 
+You will first need to download the MNIST Dataset. See `mnist/data/README.md`.
+
 ```
 $ make mnist
 $ cd mnist
