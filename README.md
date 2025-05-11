@@ -40,14 +40,21 @@ Provide training parameters and train your model:
 TrainingContext context = {
   .learning_rate = 0.10,
   .number_of_epochs = 10,
+  .number_of_examples = number_of_images,
 };
-neuralnetwork_train(&network, inputs, labels, number_of_inputs, &context);
+neuralnetwork_train(&network, inputs, labels, &context);
 ```
 
 In the case of a classifier, ask the ANN for the class of a given input:
 
 ```c
 uint8_t answer = neuralnetwork_ask(&network, input);
+```
+
+Once you are done, destroy the ANN:
+
+```c
+neuralnetwork_destroy(&network);
 ```
 
 ## Dependencies
