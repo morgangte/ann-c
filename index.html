@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <title>ANN in C</title>
+        <link rel="stylesheet" href="style/style.css">
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:ital,wght@0,400..700;1,400..700&display=swap"
+            rel="stylesheet">
+    </head>
+    <body>
+        <main>
+            <section id="main">
+                <section class="content-section">
+                    <h2>Artificial Neural Network in C</h2>
+                    <div class="content-item">
+                        <div class="content-column">
+                            <p>Artificial Neural Network (ANN) implementation in C. The aim of this project was to familiarize myself with the implementation of a neural network at the low level.</p>
+                            <a href="" target="_blank">GitHub repository</a>
+                        </div>
+                    </div>
+                </section>
+                <section class="content-section">
+                    <h2>Implementation</h2>
+                    <div class="content-item">
+                        <div class="content-column">
+                            <p>The implementation is such that the architecture can be easily adjusted: number and size of layers, activation function.</p>
+                            <p>To speed up training, I also used the <a href="https://www.openmp.org/" target="_blank">OpenMP API</a>.</p>
+                        </div>
+                    </div>
+                </section>
+                <section class="content-section">
+                    <h2>Example: MNIST Dataset</h2>
+                    <div class="content-item">
+                        <div class="content-column">
+                            <p>This famous dataset is a set of hand-written digits (between 0 and 9) black and white images of 28 × 28 pixels. The label of each example corresponds to the digit of the image.</p>
+                            <div class="images-list">
+                                <div class="images-list-item">
+                                    <img src="images/mnist/digit_0.png">
+                                    <p>0</p>
+                                </div>
+                                <div class="images-list-item">
+                                    <img src="images/mnist/digit_1.png">
+                                    <p>1</p>
+                                </div>
+                                <div class="images-list-item">
+                                    <img src="images/mnist/digit_2.png">
+                                    <p>2</p>
+                                </div>
+                                <div class="images-list-item">
+                                    <img src="images/mnist/digit_3.png">
+                                    <p>3</p>
+                                </div>
+                                <div class="images-list-item">
+                                    <img src="images/mnist/digit_4.png">
+                                    <p>4</p>
+                                </div>
+                                <div class="images-list-item">
+                                    <img src="images/mnist/digit_5.png">
+                                    <p>5</p>
+                                </div>
+                                <div class="images-list-item">
+                                    <img src="images/mnist/digit_6.png">
+                                    <p>6</p>
+                                </div>
+                                <div class="images-list-item">
+                                    <img src="images/mnist/digit_7.png">
+                                    <p>7</p>
+                                </div>
+                                <div class="images-list-item">
+                                    <img src="images/mnist/digit_8.png">
+                                    <p>8</p>
+                                </div>
+                                <div class="images-list-item">
+                                    <img src="images/mnist/digit_9.png">
+                                    <p>9</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="content-item">
+                        <div class="content-column">
+                            <h3>Architecture</h3>
+                            <p>The ANN used for this dataset is made up of 3 layers:</p>
+                            <ul>
+                                <li>Input layer: 784 neurons (28 × 28)</li>
+                                <li>Hidden layer: 89 neurons</li>
+                                <li>Output layer: 10 neurons (one for each class)</li>
+                            </ul>
+                            <p>We use the sigmoid activation function on the hidden layer, and the softmax activation function on the output layer to convert the output vector into a probability distribution.</p>
+                        </div>
+                    </div>
+                    <div class="content-item">
+                        <div class="content-column">
+                            <h3>Training</h3>
+                            <ul>
+                                <li>5 epochs</li>
+                                <li>Learning rate of 0.10</li>
+                                <li>60,000 images as training examples</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="content-item">
+                        <div class="content-column">
+                            <h3>Results</h3>
+                            <p>After testing on 10,000 examples (distinct from training examples), we obtain a classification accuracy of 95%.</p>
+                        </div>
+                    </div>
+                </section>
+            </section>
+        </main>
+    </body>
+</html>
