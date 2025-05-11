@@ -2,7 +2,7 @@
 
 Artificial Neural Network (ANN) in C. 
 
-## Example: MNIST handwritten digits dataset
+## Example: MNIST hand-written digits dataset
 
 ```
 $ make mnist
@@ -47,6 +47,11 @@ In the case of a classifier, ask the ANN for the class of a given input:
 ```c
 uint8_t answer = neuralnetwork_ask(&network, input);
 ```
+
+## Dependencies
+
+- C OpenMP API
+- Python Tensorflow library
 
 ## Author
 

@@ -8,7 +8,7 @@
 
 int main(void) {
     uint32_t number_of_images, image_size, number_of_labels;
-    uint8_t *images = load_images("data/train-images.bin", &number_of_images, &image_size);
+    uint8_t *images = load_images("data/train-images.bin", IMAGE_DIMENSION, &number_of_images, &image_size);
     uint8_t *labels = load_labels("data/train-labels.bin", &number_of_labels);
     if (number_of_images != NUMBER_OF_IMAGES_TRAIN) {
         fprintf(stderr, "ERROR: Unexpected number of images (expected %d, loaded %d)\n", NUMBER_OF_IMAGES_TRAIN, number_of_images);

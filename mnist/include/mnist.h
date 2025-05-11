@@ -9,12 +9,12 @@
 #define IMAGE_WIDTH 28
 #define IMAGE_HEIGHT 28
 #define IMAGE_SIZE (IMAGE_HEIGHT * IMAGE_WIDTH)
+#define IMAGE_DIMENSION 1
 
-#define INPUT_SIZE IMAGE_SIZE
+#define INPUT_SIZE (IMAGE_SIZE * IMAGE_DIMENSION)
 #define HIDDEN_SIZE 89
 #define OUTPUT_SIZE 10
 
 void prepare_input(uint8_t *raw, double *prepared, uint32_t size);
-void display_image(double *image);
 
 #endif  // MNIST_H

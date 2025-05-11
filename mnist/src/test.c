@@ -6,9 +6,7 @@
 #include "mnist.h"
 #include "neuralnetwork.h"
 
-#define TEST_PREDICTIONS 10
-
-void print_results(NeuralNetwork *network, double *images, uint8_t *labels, uint32_t test_examples, double performance, TrainingContext *context) {
+void print_results(uint32_t test_examples, double performance, TrainingContext *context) {
     printf(
         "Neural Network results:\n"
         "   Training context:\n"
@@ -21,19 +19,11 @@ void print_results(NeuralNetwork *network, double *images, uint8_t *labels, uint
         context->number_of_examples,
         performance * 100,
         test_examples);
-
-    uint32_t input_size = neuralnetwork_input_size(network);
-    printf("   Prediction examples:\n");
-    for (int i = 0; i < TEST_PREDICTIONS; i++) {
-        uint8_t answer = neuralnetwork_ask(network, &images[i * input_size]);
-        printf("      %d recognized as a %d\n", labels[i], answer);
-        display_image(images + i * IMAGE_SIZE);
-    }
 }
 
 int main(void) {
     uint32_t number_of_images, image_size, number_of_labels;
-    uint8_t *images = load_images("data/test-images.bin", &number_of_images, &image_size);
+    uint8_t *images = load_images("data/test-images.bin", IMAGE_DIMENSION, &number_of_images, &image_size);
     uint8_t *labels = load_labels("data/test-labels.bin", &number_of_labels);
     if (number_of_images != NUMBER_OF_IMAGES_TEST) {
         fprintf(stderr, "ERROR: Unexpected number of images (expected %d, loaded %d)\n", NUMBER_OF_IMAGES_TEST, number_of_images);
@@ -51,7 +41,7 @@ int main(void) {
     neuralnetwork_load(&network, &context, "model/nn_mnist.bin");
 
     double accuracy = neuralnetwork_benchmark(&network, prepared_images, labels, number_of_images);
-    print_results(&network, prepared_images, labels, number_of_images, accuracy, &context);
+    print_results(number_of_images, accuracy, &context);
 
     neuralnetwork_destroy(&network);
     free(prepared_images);

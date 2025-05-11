@@ -13,7 +13,7 @@ uint32_t read_uint32(FILE *file) {
     return __builtin_bswap32(integer);
 }
 
-uint8_t *load_images(const char *filename, uint32_t *num_images, uint32_t *image_size) {
+uint8_t *load_images(const char *filename, uint32_t image_dimension, uint32_t *num_images, uint32_t *image_size) {
     FILE *f = fopen(filename, "rb");
     if (!f) {
         perror("Failed to open images file at load_images()");
@@ -25,7 +25,7 @@ uint8_t *load_images(const char *filename, uint32_t *num_images, uint32_t *image
     uint32_t cols = read_uint32(f);
     *image_size = rows * cols;
 
-    uint8_t *images = (uint8_t *)malloc((*num_images) * (*image_size));
+    uint8_t *images = (uint8_t *)malloc((*num_images) * (*image_size) * image_dimension);
     if (!images) {
         perror("Failed to allocate memory for images at load_images()");
         exit(EXIT_FAILURE);
