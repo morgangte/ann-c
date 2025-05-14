@@ -145,3 +145,43 @@ div.images-list-item {
     flex-direction: column;
     align-items: center;
 }
+
+/******************* Code block ***********************/
+
+pre.code-block {
+    font-family: monospace;
+    color: rgb(236, 246, 255); 
+    background-color: rgb(51, 51, 51); 
+    font-weight: 400;
+    padding: 1em;
+    border-radius: 1em;
+    box-shadow: 0.1em 0.1em 0.15em 0.15em rgba(119, 119, 119, 0.295);
+    margin: 0px;
+    margin-top: 1em;
+    margin-bottom: 0.8em;
+    text-wrap: wrap;
+}
+
+span.code-type {
+    color: rgb(255, 123, 114); 
+    font-weight: 400;
+}
+
+span.code-value {
+    color: rgb(121, 192, 255); 
+    font-weight: 400;
+}
+
+span.code-function {
+    color: rgb(255, 166, 87); 
+    font-weight: 400;
+}
+
+span.code-macro {
+    color: rgb(215, 115, 255); 
+    font-weight: 400;    
+}
+
+span.code-comment {
+    color: rgb(173, 172, 172);
+}

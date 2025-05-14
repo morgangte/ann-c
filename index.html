@@ -27,7 +27,42 @@
                     <h2>Implementation</h2>
                     <div class="content-item">
                         <div class="content-column">
-                            <p>The implementation is such that the architecture can be easily adjusted: number and size of layers, activation function.</p>
+                            <p>The implementation is such that the architecture can be easily adjusted: number and size of layers, activation function. Create a Neural Network with 2 layers (and the input layer):</p>
+<pre class="code-block">
+<span class="code-type">NeuralNetwork</span> network = neuralnetwork_create(<span class="code-value">2</span>);
+neuralnetwork_add_layer(&amp;network, <span class="code-macro">INPUT_SIZE</span>, <span class="code-macro">SIGMOID_ACTIVATION</span>, <span class="code-macro">HIDDEN_SIZE</span>);
+neuralnetwork_add_layer(&amp;network, <span class="code-macro">HIDDEN_SIZE</span>, <span class="code-macro">SOFTMAX_ACTIVATION</span>, <span class="code-macro">OUTPUT_SIZE</span>);
+
+neuralnetwork_initialize(&amp;network);
+</pre>
+                            <p>Initialization will set weights and biases of each layer to random values. Set training parameters, then train the Neural Network:</p>
+<pre class="code-block">
+<span class="code-type">TrainingContext</span> context = {
+    .learning_rate = <span class="code-value">0.10</span>,
+    .number_of_epochs = <span class="code-value">5</span>,
+    .number_of_examples = number_of_images,
+};
+neuralnetwork_train(&amp;network, images, labels, &amp;context);
+</pre>
+                            <p>Evaluate the Neural Network accuracy, or simply ask the Neural Network from an input:</p>
+<pre class="code-block">
+<span style="color: rgb(255, 123, 114); font-weight: 400;">double</span> accuracy = neuralnetwork_benchmark(&amp;network, test_images, test_labels, test_images_count);
+
+<span style="color: rgb(255, 123, 114); font-weight: 400;">uint8_t</span> answer = neuralnetwork_ask(network, input);
+</pre>
+                            <p>You can easily save (usually after training) and load a Neural Network to/from a file:</p>
+<pre class="code-block">
+neuralnetwork_save(&amp;network, &amp;context, <span style="color: rgb(165, 214, 255); font-weight: 400;">"model.bin"</span>);
+
+<span class="code-comment">// From a new file</span>
+<span class="code-type">NeuralNetwork</span> network;
+<span class="code-type">TrainingContext</span> context;
+neuralnetwork_load(&amp;network, &amp;context, <span style="color: rgb(165, 214, 255); font-weight: 400;">"model.bin"</span>);
+</pre>
+                            <p>Finally, free the Neural Network:</p>
+<pre class="code-block">
+neuralnetwork_destroy(&amp;network);
+</pre>
                             <p>To speed up training, I also used the <a href="https://www.openmp.org/" target="_blank">OpenMP API</a>.</p>
                         </div>
                     </div>
