@@ -22,6 +22,12 @@ p {
     color: var(--text-primary-color);
 }
 
+a,
+li,
+p {
+    font-size: 1em;
+}
+
 a.link-with-icon {
     display: inline-flex;
     align-items: center;
@@ -160,6 +166,7 @@ pre.code-block {
     margin-top: 1em;
     margin-bottom: 0.8em;
     text-wrap: wrap;
+    font-size: 1em;
 }
 
 span.code-type {
