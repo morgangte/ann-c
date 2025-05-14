@@ -22,12 +22,6 @@ p {
     color: var(--text-primary-color);
 }
 
-a,
-li,
-p {
-    font-size: 1em;
-}
-
 a.link-with-icon {
     display: inline-flex;
     align-items: center;
@@ -69,6 +63,7 @@ body {
     margin: 1em;
     padding: 0px;
     background-color: var(--background-color);
+    font-size: 1em;
 }
 
 main {
