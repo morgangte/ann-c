@@ -149,7 +149,7 @@ div.images-list-item {
 
 /******************* Code block ***********************/
 
-pre.code-block {
+.code-block {
     font-family: monospace;
     color: rgb(236, 246, 255); 
     background-color: rgb(51, 51, 51); 
@@ -164,26 +164,26 @@ pre.code-block {
     font-size: 1em;
 }
 
-span.code-type {
+.code-type {
     color: rgb(255, 123, 114); 
     font-weight: 400;
 }
 
-span.code-value {
+.code-value {
     color: rgb(121, 192, 255); 
     font-weight: 400;
 }
 
-span.code-function {
+.code-function {
     color: rgb(255, 166, 87); 
     font-weight: 400;
 }
 
-span.code-macro {
+.code-macro {
     color: rgb(215, 115, 255); 
     font-weight: 400;    
 }
 
-span.code-comment {
+.code-comment {
     color: rgb(173, 172, 172);
 }
