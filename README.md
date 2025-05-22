@@ -59,7 +59,7 @@ neuralnetwork_destroy(&network);
 
 ## Dependencies
 
-- C OpenMP API
+- C OpenMP
 - Python Tensorflow library
 
 ## Author
